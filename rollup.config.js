@@ -16,7 +16,7 @@ const mode = process.env.PROD ? 'production' : 'development'
 export default {
   input: 'src/index.js',
   output: {
-    file: 'build/bundle.js',
+    file: 'bundle.js',
     format: 'iife'
   },
   plugins: [
@@ -41,11 +41,11 @@ export default {
       serve({
         open: true,
         historyApiFallback: true,
-        contentBase: 'build',
+        contentBase: '',
         host: myIP,
         port: port
       })
     ),
-    process.env.DEV && livereload('build')
+    process.env.DEV && livereload()
   ]
 };
