@@ -3,8 +3,8 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import babel from '@rollup/plugin-babel'
 import url from '@rollup/plugin-url'
+import css from 'rollup-plugin-css-only'
 import glslify from 'rollup-plugin-glslify'
-import html from 'rollup-plugin-generate-html-template'
 import { terser } from 'rollup-plugin-terser'
 
 import serve from 'rollup-plugin-serve'
@@ -17,7 +17,7 @@ const mode = process.env.PROD ? 'production' : 'development'
 export default {
   input: 'src/index.js',
   output: {
-    file: 'bundle.js',
+    file: 'dist/bundle.js',
     format: 'iife'
   },
   plugins: [
@@ -26,17 +26,16 @@ export default {
     commonjs({
       include: /node_modules/
     }),
+    url({
+      emitFiles: false,
+      publicPath: 'assets/',
+      fileName: '[name][extname]'
+    }),
+    css({ output: 'bundle.css' }),
     glslify(),
     babel({
       exclude: /node_modules/,
       babelHelpers: 'bundled'
-    }),
-    html({
-      template: 'src/index.html',
-      target: 'index.html'
-    }),
-    url({
-      fileName: '[dirname][name][extname]'
     }),
     process.env.PROD && terser(),
     process.env.DEV && (
