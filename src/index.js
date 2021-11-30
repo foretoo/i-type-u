@@ -23,6 +23,8 @@ const texture = new THREE.CanvasTexture(canvas)
 const input = document.createElement('input')
 input.oninput = e => {
   textInput = e.target.value
+  ctx.fillStyle = 'white'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
   ctx.fillStyle = 'blue'
   ctx.fillText(textInput, 0, 24)
   texture.needsUpdate = true
