@@ -20,6 +20,15 @@ ctx.fillText(textInput, 0, 24)
 const texture = new THREE.CanvasTexture(canvas)
 
 
+const input = document.createElement('input')
+input.oninput = e => {
+  textInput = e.target.value
+  ctx.fillStyle = 'blue'
+  ctx.fillText(textInput, 0, 24)
+  texture.needsUpdate = true
+}
+
+
 let time = 0
 const [ width, height ] = [ document.documentElement.clientWidth, document.documentElement.clientHeight ]
 
@@ -44,6 +53,7 @@ scene.add( obj )
 
 document.body.appendChild( renderer.domElement )
 document.body.appendChild( canvas )
+document.body.appendChild( input )
 
 
 function render() {
