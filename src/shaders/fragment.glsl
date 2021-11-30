@@ -1,11 +1,10 @@
 varying float vNoise;
 varying vec2 vUv;
-uniform sampler2D bernoulli;
-uniform float time;
+uniform sampler2D image;
 
 void main() {
 
-  vec4 text = texture2D(bernoulli, vUv);
+  vec4 text = texture2D(image, vUv);
 
   gl_FragColor = text * vNoise;
 }

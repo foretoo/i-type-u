@@ -5,6 +5,20 @@ import './index.css'
 import image from '../assets/bernoulli.png'
 
 
+const pd = window.devicePixelRatio
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+canvas.width = 128 * pd
+canvas.height = 160 * pd
+canvas.style.cssText = `width: ${canvas.width / pd}px; height: ${canvas.height / pd}px;`
+ctx.fillStyle = 'white'
+ctx.fillRect(0, 0, canvas.width, canvas.height)
+ctx.font = '20px serif'
+ctx.fillStyle = 'blue'
+let textInput = ''
+ctx.fillText(textInput, 0, 24)
+const texture = new THREE.CanvasTexture(canvas)
+
 
 let time = 0
 const [ width, height ] = [ document.documentElement.clientWidth, document.documentElement.clientHeight ]
@@ -14,15 +28,12 @@ const camera = new THREE.PerspectiveCamera( 50, width / height, 0.01, 100 )
 camera.position.z = 3;
 const renderer = new THREE.WebGLRenderer( { antialias: true } )
 renderer.setSize( width, height )
-window.root.appendChild( renderer.domElement )
-
-
 
 const geometry = new THREE.PlaneBufferGeometry( 1,1.25, 120,150 )
 const material = new THREE.ShaderMaterial({
   uniforms: {
     time: { value: 0 },
-    bernoulli: { value: new THREE.TextureLoader().load(image)}
+    image: { value: texture }
   },
   fragmentShader: fragment,
   vertexShader: vertex
@@ -31,10 +42,13 @@ const obj = new THREE.Mesh( geometry, material )
 scene.add( obj )
 
 
+document.body.appendChild( renderer.domElement )
+document.body.appendChild( canvas )
+
 
 function render() {
   time = performance.now() / 1000
-  obj.rotation.x = (Math.sin(time) - 15) / 14
+  obj.rotation.x = (Math.sin(time) - 11) / 13
   material.uniforms.time.value = time
   renderer.render( scene, camera )
   requestAnimationFrame( render )
