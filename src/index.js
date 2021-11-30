@@ -14,12 +14,10 @@ canvas.style.cssText = `width: ${canvas.width / pd}px; height: ${canvas.height /
 ctx.fillStyle = 'white'
 ctx.fillRect(0, 0, canvas.width, canvas.height)
 ctx.font = '20px serif'
-ctx.fillStyle = 'blue'
-let textInput = ''
-ctx.fillText(textInput, 0, 24)
 const texture = new THREE.CanvasTexture(canvas)
 
 
+let textInput = ''
 const input = document.createElement('input')
 input.oninput = e => {
   textInput = e.target.value
