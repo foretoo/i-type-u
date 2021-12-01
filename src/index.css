@@ -6,6 +6,7 @@
   font-family: serif;
   font-size: 20px;
   line-height: 1rem;
+  color: blue;
   box-sizing: border-box;
 }
 body {
@@ -25,5 +26,4 @@ input {
   background-color: rgba(0, 0, 0, 0);
   border: 1px solid blue;
   border-radius: 0.5rem;
-  color: blue;
 }
