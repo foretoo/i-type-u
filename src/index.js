@@ -14,7 +14,7 @@ const ctx = canvas.getContext('2d')
 canvas.width = 256 * pd
 canvas.height = 320 * pd
 canvas.style.cssText = `width: ${canvas.width / 2}px; height: ${canvas.height / 2}px;`
-ctx.fillStyle = '#dddddd'
+ctx.fillStyle = '#eeeeee'
 ctx.fillRect(0, 0, canvas.width, canvas.height)
 ctx.font = '40px serif'
 const texture = new THREE.CanvasTexture(canvas)
@@ -29,7 +29,7 @@ span.style.visibility = 'hidden'
 span.style.whiteSpace = 'pre'
 
 input.oninput = e => {
-  ctx.fillStyle = '#dddddd'
+  ctx.fillStyle = '#eeeeee'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   const text = e.target.value
   let line = ''
@@ -67,7 +67,7 @@ let time = 0
 const [ width, height ] = [ document.body.clientWidth, document.body.clientHeight ]
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color( 0xdddddd );
+scene.background = new THREE.Color( 0xcccccc );
 const camera = new THREE.PerspectiveCamera( 50, width / height, 0.01, 100 )
 camera.position.z = 3;
 const renderer = new THREE.WebGLRenderer( { antialias: true } )
