@@ -9,6 +9,7 @@ import './index.css'
 
 const pd = window.devicePixelRatio
 const canvas = document.createElement('canvas')
+canvas.style.visibility = 'hidden'
 const ctx = canvas.getContext('2d')
 canvas.width = 256 * pd
 canvas.height = 320 * pd
@@ -66,6 +67,7 @@ let time = 0
 const [ width, height ] = [ document.body.clientWidth, document.body.clientHeight ]
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color( 0xdddddd );
 const camera = new THREE.PerspectiveCamera( 50, width / height, 0.01, 100 )
 camera.position.z = 3;
 const renderer = new THREE.WebGLRenderer( { antialias: true } )
@@ -94,7 +96,7 @@ function render() {
 
 
 document.body.appendChild( span )
-document.body.appendChild( renderer.domElement )
 document.body.appendChild( canvas )
+document.body.appendChild( renderer.domElement )
 document.body.appendChild( input )
 render()
