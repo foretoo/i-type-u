@@ -25,16 +25,19 @@ const texture = new THREE.CanvasTexture(canvas)
 let textInput = ''
 const rect = { w: 0, h: 0 }
 const input = document.createElement('input')
+const span = document.createElement('span')
+span.style.visibility = 'hidden'
+span.style.whiteSpace = 'pre'
 input.oninput = e => {
-  textInput = e.target.value
+  textInput = span.textContent = e.target.value
   ctx.fillStyle = '#dddddd'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
-  rect.w = Math.abs(ctx.measureText(textInput).actualBoundingBoxLeft) + Math.abs(ctx.measureText(textInput).actualBoundingBoxRight)
-  rect.h = ctx.measureText(textInput).fontBoundingBoxAscent + ctx.measureText(textInput).fontBoundingBoxDescent
+  rect.w = span.offsetWidth * 2
+  rect.h = span.offsetHeight * 2
   ctx.fillStyle = 'white'
   ctx.fillRect(0, 0, rect.w, rect.h)
   ctx.fillStyle = 'blue'
-  ctx.fillText(textInput, 0, ctx.measureText(textInput).fontBoundingBoxAscent)
+  ctx.fillText(textInput, 0, 32)
   texture.needsUpdate = true
 }
 
@@ -43,7 +46,7 @@ input.oninput = e => {
 //////// THREE ////////
 
 let time = 0
-const [ width, height ] = [ document.documentElement.clientWidth, document.documentElement.clientHeight ]
+const [ width, height ] = [ document.body.clientWidth, document.body.clientHeight ]
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 50, width / height, 0.01, 100 )
@@ -76,4 +79,5 @@ function render() {
 document.body.appendChild( renderer.domElement )
 document.body.appendChild( canvas )
 document.body.appendChild( input )
+document.body.appendChild( span )
 render()
