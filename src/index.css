@@ -5,26 +5,25 @@
   outline: 0;
   font-family: serif;
   font-size: 20px;
-  line-height: 1em;
+  line-height: 1rem;
   box-sizing: border-box;
 }
 body {
   min-height: 100vh;
 }
-canvas, span {
+canvas, input, span {
   position: absolute;
   top: 0;
   left: 0;
 }
 input {
   width: 42%;
-  padding: 0.5em;
-  color: blue;
-  position: absolute;
+  padding: 0.5rem;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: rgba(0, 0, 0, 0);
   border: 1px solid blue;
-  border-radius: 0.5em;
+  border-radius: 0.5rem;
+  color: blue;
 }
