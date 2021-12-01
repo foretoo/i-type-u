@@ -22,23 +22,40 @@ const texture = new THREE.CanvasTexture(canvas)
 
 //////// INPUT ////////
 
-let textInput = ''
-const rect = { w: 0, h: 0 }
 const input = document.createElement('input')
 const span = document.createElement('span')
 span.style.visibility = 'hidden'
 span.style.whiteSpace = 'pre'
+
 input.oninput = e => {
-  textInput = span.textContent = e.target.value
   ctx.fillStyle = '#dddddd'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
-  rect.w = span.offsetWidth * 2
-  rect.h = span.offsetHeight * 2
-  ctx.fillStyle = 'white'
-  ctx.fillRect(0, 0, rect.w, rect.h)
-  ctx.fillStyle = 'blue'
-  ctx.fillText(textInput, 0, 32)
+  const text = e.target.value
+  let line = ''
+  let marginTop = 0
+  for (let i = 0; i < text.length; i++) {
+    line += text[i]
+    span.textContent = line
+    if (span.offsetWidth > canvas.width / 2) {
+      line = line.slice(0, -1)
+      span.textContent = line
+      drawText(line, marginTop)
+      marginTop += 40
+      line = text[i]
+      span.textContent = line
+      drawText(line, marginTop)
+    } else {
+      drawText(line, marginTop)
+    }
+  }
   texture.needsUpdate = true
+}
+
+function drawText(text, marginTop) {
+  ctx.fillStyle = 'white'
+  ctx.fillRect(0, marginTop, span.offsetWidth * 2, span.offsetHeight * 2)
+  ctx.fillStyle = 'blue'
+  ctx.fillText(text, 0, 32 + marginTop)
 }
 
 
@@ -76,8 +93,8 @@ function render() {
 
 
 
+document.body.appendChild( span )
 document.body.appendChild( renderer.domElement )
 document.body.appendChild( canvas )
 document.body.appendChild( input )
-document.body.appendChild( span )
 render()
