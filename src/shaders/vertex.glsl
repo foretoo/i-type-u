@@ -41,7 +41,7 @@ void main() {
   newPosition.z += newPosition.z*noise2;
 
 
-  vNoise = 1.333 * (newPosition.z + .667);
+  vNoise = 1.25 * (newPosition.z + 1.) - .333;
   vUv = uv;
 
 
