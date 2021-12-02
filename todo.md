@@ -1,0 +1,4 @@
+- white-spaces on input not been filled by white rectangles
+- first texture-cover on plain
+- text appeared on input
+- background (maybe sky gradient or its image)
