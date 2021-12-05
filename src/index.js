@@ -7,16 +7,17 @@ import './index.css'
 
 //////// CANVAS ////////
 
-const pd = window.devicePixelRatio
 const canvas = document.createElement('canvas')
 canvas.style.visibility = 'hidden'
 const ctx = canvas.getContext('2d')
-canvas.width = 256 * pd
-canvas.height = 320 * pd
+const clearColor = '#0000ff'
+canvas.width = 256 * 2
+canvas.height = 320 * 2
 canvas.style.cssText = `width: ${canvas.width / 2}px; height: ${canvas.height / 2}px;`
-ctx.fillStyle = '#eeeeee'
-ctx.fillRect(0, 0, canvas.width, canvas.height)
-ctx.font = '40px serif'
+clearCanvas(ctx, clearColor, canvas.width, canvas.height)
+const fontHeight = 40
+const baseline = 0.8 * fontHeight
+ctx.font = `${fontHeight}px serif`
 const texture = new THREE.CanvasTexture(canvas)
 
 
@@ -25,38 +26,73 @@ const texture = new THREE.CanvasTexture(canvas)
 
 const input = document.createElement('input')
 const span = document.createElement('span')
+span.style.fontSize = `${fontHeight}px`
 span.style.visibility = 'hidden'
 span.style.whiteSpace = 'pre'
 
 input.oninput = e => {
-  ctx.fillStyle = '#eeeeee'
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-  const text = e.target.value
-  let line = ''
-  let marginTop = 0
-  for (let i = 0; i < text.length; i++) {
-    line += text[i]
-    span.textContent = line
-    if (span.offsetWidth > canvas.width / 2) {
-      line = line.slice(0, -1)
-      span.textContent = line
-      drawText(line, marginTop)
-      marginTop += 40
-      line = text[i]
-      span.textContent = line
-      drawText(line, marginTop)
-    } else {
-      drawText(line, marginTop)
+
+  clearCanvas(ctx, clearColor, canvas.width, canvas.height)
+
+  const value = span.textContent = e.target.value
+  const data = [{ text: '', top: 0, left: 0, width: 0, height: span.offsetHeight }]
+  span.textContent = ''
+  let w = 0
+
+  for (let i = 0; i < value.length; i++) {
+
+    span.textContent += value[i]
+
+    if (span.offsetWidth > canvas.width) {
+
+      span.textContent = data[w].text
+      data[w].width = span.offsetWidth
+      span.textContent = value[i]
+
+      data.push({
+        text: value[i] === ' ' ? '' : value[i],
+        top: data[w].top + span.offsetHeight,
+        left: value[i] === ' ' ? span.offsetWidth : 0,
+        width: value[i] === ' ' ? 0 : span.offsetWidth,
+        height: span.offsetHeight
+      })
+      w++
     }
+    else {
+
+      if (value[i] === ' ') {
+        data.push({
+          text: '',
+          top: data[w].top,
+          left: span.offsetWidth,
+          width: 0,
+          height: span.offsetHeight
+        })
+        w++
+      }
+      else {
+        data[w].text += value[i]
+        data[w].width = span.offsetWidth - data[w].left
+      }
+    }
+
   }
+
+  drawText(ctx, data)
   texture.needsUpdate = true
 }
-
-function drawText(text, marginTop) {
-  ctx.fillStyle = 'white'
-  ctx.fillRect(0, marginTop, span.offsetWidth * 2, span.offsetHeight * 2)
-  ctx.fillStyle = 'blue'
-  ctx.fillText(text, 0, 32 + marginTop)
+function clearCanvas(ctx, color, width, height) {
+  ctx.fillStyle = color
+  ctx.fillRect(0, 0, width, height)
+}
+function drawText(ctx, data = []) {
+  data.forEach(word => {
+    const { text, top, left, width, height } = word
+    ctx.fillStyle = 'white'
+    ctx.fillRect(left, top, width, height)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(text, left, baseline + top)
+  })
 }
 
 
