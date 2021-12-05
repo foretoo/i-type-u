@@ -1,3 +1,4 @@
 - first texture-cover on plain
 - decide what text should appear on input in input element and canvas
 - background (maybe sky gradient or its image)
+- le avtovidelenie oshiboque
