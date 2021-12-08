@@ -3,19 +3,21 @@ import fragment from './shaders/fragment.glsl'
 import vertex from './shaders/vertex.glsl'
 import './index.css'
 
+const scaleY = 1.25
+
 
 
 //////// CANVAS ////////
 
 const canvas = document.createElement('canvas')
 canvas.style.visibility = 'hidden'
-const ctx = canvas.getContext('2d')
+const ctx = canvas.getContext('2d', { alpha: false })
 const clearColor = '#0000ff'
-canvas.width = 256 * 2
-canvas.height = 320 * 2
+canvas.width = 256
+canvas.height = 256
 canvas.style.cssText = `width: ${canvas.width / 2}px; height: ${canvas.height / 2}px;`
 clearCanvas(ctx, clearColor, canvas.width, canvas.height)
-const fontHeight = 40
+const fontHeight = 24
 const baseline = 0.8 * fontHeight
 ctx.font = `${fontHeight}px serif`
 const texture = new THREE.CanvasTexture(canvas)
@@ -25,6 +27,8 @@ const texture = new THREE.CanvasTexture(canvas)
 //////// INPUT ////////
 
 const input = document.createElement('input')
+input.type = 'text'
+input.style.fontSize = `${fontHeight}px`
 const span = document.createElement('span')
 span.style.fontSize = `${fontHeight}px`
 span.style.visibility = 'hidden'
@@ -43,7 +47,7 @@ input.oninput = e => {
 
     span.textContent += value[i]
 
-    if (span.offsetWidth > canvas.width) {
+    if (span.offsetWidth > canvas.width / scaleY) {
 
       span.textContent = data[w].text
       data[w].width = span.offsetWidth
@@ -88,10 +92,12 @@ function clearCanvas(ctx, color, width, height) {
 function drawText(ctx, data = []) {
   data.forEach(word => {
     const { text, top, left, width, height } = word
+    ctx.scale(scaleY, 1)
     ctx.fillStyle = 'white'
     ctx.fillRect(left, top, width, height)
     ctx.fillStyle = 'blue'
     ctx.fillText(text, left, baseline + top)
+    ctx.scale(1 / scaleY, 1)
   })
 }
 
@@ -109,7 +115,9 @@ camera.position.z = 3;
 const renderer = new THREE.WebGLRenderer( { antialias: true } )
 renderer.setSize( width, height )
 
-const geometry = new THREE.PlaneBufferGeometry( 1,1.25, 120,150 )
+texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+
+const geometry = new THREE.PlaneBufferGeometry( 1, scaleY, 120, 120 * scaleY )
 const material = new THREE.ShaderMaterial({
   uniforms: {
     time: { value: 0 },
