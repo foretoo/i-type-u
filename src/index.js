@@ -53,7 +53,7 @@ function handleInput(text) {
       span.textContent = text[i]
       data.push({
         text: text[i] === ' ' ? '' : text[i],
-        top: data[w].top + span.offsetHeight,
+        top: data[w].top + span.offsetHeight * 2 > canvas.height ? 0 : data[w].top + span.offsetHeight,
         left: text[i] === ' ' ? span.offsetWidth : 0,
         width: text[i] === ' ' ? 0 : span.offsetWidth,
         height: span.offsetHeight
