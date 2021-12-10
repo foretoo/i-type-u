@@ -1,5 +1,5 @@
 // Simplex 2D noise
-//
+// https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 float snoise(vec2 v){
   const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
@@ -32,18 +32,16 @@ varying vec2 vUv;
 void main() {
 
   vec3 newPosition = position;
-  float t = time*.5;
+  float t = time * 0.5;
 
-  float noise1 = snoise(.667*vec2(newPosition.x/4., newPosition.y + t));
-  float noise2 = snoise(.333*vec2(newPosition.x, newPosition.y*4. + t*1.618));
+  float noise1 = snoise(0.667 * vec2(newPosition.x / 4.0, newPosition.y + t));
+  float noise2 = snoise(0.333 * vec2(newPosition.x, newPosition.y * 4.0 + t * 1.618));
 
-  newPosition.z = .1*(newPosition.y-.625)*noise1;
-  newPosition.z += newPosition.z*noise2;
+  newPosition.z = (newPosition.y - 0.5) * noise1 * 0.1;
+  newPosition.z += newPosition.z * noise2;
 
-
-  vNoise = 1.25 * (newPosition.z + 1.) - .333;
+  vNoise = (newPosition.z + 0.25) / 0.5;
   vUv = uv;
-
 
   gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 }
