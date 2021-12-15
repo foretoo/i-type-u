@@ -5,6 +5,7 @@ import vertex from './shaders/vertex.glsl'
 import './index.css'
 
 const scaleY = 1.25
+const gap = 2
 
 
 
@@ -42,7 +43,7 @@ input.oninput = e => {
 
 function handleInput(text) {
   span.textContent = text
-  const data = [{ text: '', top: 0, left: 0, width: 0, height: span.offsetHeight }]
+  const data = [{ text: '', top: gap, left: gap, width: 0, height: span.offsetHeight }]
   span.textContent = ''
   let w = 0
   for (let i = 0; i < text.length; i++) {
@@ -53,8 +54,8 @@ function handleInput(text) {
       span.textContent = text[i]
       data.push({
         text: text[i] === ' ' ? '' : text[i],
-        top: data[w].top + span.offsetHeight * 2 > canvas.height ? 0 : data[w].top + span.offsetHeight,
-        left: text[i] === ' ' ? span.offsetWidth : 0,
+        top: data[w].top + span.offsetHeight * 2 > canvas.height ? gap : data[w].top + span.offsetHeight + gap,
+        left: text[i] === ' ' ? span.offsetWidth : gap,
         width: text[i] === ' ' ? 0 : span.offsetWidth,
         height: span.offsetHeight
       })
@@ -91,11 +92,24 @@ function drawText(ctx, data = []) {
     const { text, top, left, width, height } = word
     ctx.scale(scaleY, 1)
     ctx.fillStyle = 'white'
-    ctx.fillRect(left, top, width, height)
+    roundRect(ctx, left, top, width, height, 5)
+    ctx.fill()
     ctx.fillStyle = 'blue'
     ctx.fillText(text, left, baseline + top)
     ctx.scale(1 / scaleY, 1)
   })
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  const minLength = Math.min(w, h)
+  if (minLength < 2 * r) r = minLength / 2
+  ctx.beginPath()
+  ctx.moveTo(x+r, y)
+  ctx.arcTo(x+w, y,   x+w, y+h, r)
+  ctx.arcTo(x+w, y+h, x,   y+h, r)
+  ctx.arcTo(x,   y+h, x,   y,   r)
+  ctx.arcTo(x,   y,   x+w, y,   r)
+  ctx.closePath()
 }
 
 
@@ -137,7 +151,7 @@ function render() {
   material.uniforms.time.value = time
   controls.update()
   renderer.render( scene, camera )
-  input.style.filter = document.activeElement === input ? `blur(${Math.random()*1.618+2}px)` : `blur(2px)`
+  // input.style.filter = document.activeElement === input ? `blur(${Math.random()*1.618+2}px)` : `blur(2px)`
   requestAnimationFrame( render )
 }
 
