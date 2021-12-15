@@ -4,6 +4,7 @@
   order: 0;
   outline: 0;
   font-family: serif;
+  font-size: 20px;
   color: blue;
   box-sizing: border-box;
 }
@@ -20,12 +21,14 @@ canvas, input, span {
   left: 0;
 }
 input {
-  padding: 0.25em;
+  padding: 0.25rem;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border: 2px solid white;
+  border: none;
   border-radius: 0.25rem;
   color: rgba(0, 0, 0, 0);
   background-color: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0.25rem);
+  -webkit-backdrop-filter: blur(0.25rem);
 }
