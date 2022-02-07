@@ -17,6 +17,7 @@
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-url": "^6.1.0",
+    "eslint": "^8.8.0",
     "rollup": "^2.60.1",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-glslify": "^1.2.1",
