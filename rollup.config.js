@@ -22,7 +22,11 @@ export default {
   },
   plugins: [
     replace({ 'process.env.NODE_ENV': JSON.stringify('development') }),
-    resolve(),
+    resolve({
+      jsnext: true,
+      main: true,
+      browser: true,
+    }),
     commonjs({
       include: /node_modules/
     }),
