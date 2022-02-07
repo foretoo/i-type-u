@@ -1,9 +1,9 @@
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import paper from 'paper'
-import fragment from './shaders/fragment.glsl'
-import vertex from './shaders/vertex.glsl'
-import './index.css'
+import * as THREE from "three"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
+import paper from "paper"
+import fragment from "./shaders/fragment.glsl"
+import vertex from "./shaders/vertex.glsl"
+import "./index.css"
 
 const scaleY = 1.25
 const gap = 2
@@ -12,10 +12,10 @@ const gap = 2
 
 //////// CANVAS ////////
 
-const canvas = document.createElement('canvas')
-canvas.style.visibility = 'hidden'
-const ctx = canvas.getContext('2d', { alpha: false })
-const clearColor = '#0000ff'
+const canvas = document.createElement("canvas")
+canvas.style.visibility = "hidden"
+const ctx = canvas.getContext("2d", { alpha: false })
+const clearColor = "#0000ff"
 canvas.width = 256
 canvas.height = 256
 clearCanvas(ctx, clearColor, canvas.width, canvas.height)
@@ -28,16 +28,16 @@ const texture = new THREE.CanvasTexture(canvas)
 
 //////// INPUT ////////
 
-const input = document.createElement('input')
-input.type = 'text'
+const input = document.createElement("input")
+input.type = "text"
 input.style.fontSize = `${fontHeight}px`
 input.style.width = `${ 50 / Math.sqrt(document.body.clientWidth / document.body.clientHeight) }%`
-const span = document.createElement('span')
+const span = document.createElement("span")
 span.style.fontSize = `${fontHeight}px`
-span.style.visibility = 'hidden'
-span.style.whiteSpace = 'pre'
+span.style.visibility = "hidden"
+span.style.whiteSpace = "pre"
 
-input.oninput = e => {
+input.oninput = (e) => {
   clearCanvas(ctx, clearColor, canvas.width, canvas.height)
   handleInput(e.target.value)
 }
@@ -47,11 +47,11 @@ function handleInput(text) {
     actualBoundingBoxAscent,
     actualBoundingBoxDescent,
     actualBoundingBoxLeft,
-    actualBoundingBoxRight
+    actualBoundingBoxRight,
   } = ctx.measureText(text)
   span.textContent = text
-  const data = [{ text: '', top: gap, left: gap, width: 0, height: span.offsetHeight }]
-  span.textContent = ''
+  const data = [{ text: "", top: gap, left: gap, width: 0, height: span.offsetHeight }]
+  span.textContent = ""
   let w = 0
   for (let i = 0; i < text.length; i++) {
     span.textContent += text[i]
@@ -60,22 +60,22 @@ function handleInput(text) {
       data[w].width = span.offsetWidth
       span.textContent = text[i]
       data.push({
-        text: text[i] === ' ' ? '' : text[i],
-        top: data[w].top + span.offsetHeight * 2 > canvas.height ? gap : data[w].top + span.offsetHeight + gap,
-        left: text[i] === ' ' ? span.offsetWidth : gap,
-        width: text[i] === ' ' ? 0 : span.offsetWidth,
-        height: span.offsetHeight
+        text:   text[i] === " " ? "" : text[i],
+        top:    data[w].top + span.offsetHeight * 2 > canvas.height ? gap : data[w].top + span.offsetHeight + gap,
+        left:   text[i] === " " ? span.offsetWidth : gap,
+        width:  text[i] === " " ? 0 : span.offsetWidth,
+        height: span.offsetHeight,
       })
       w++
     }
     else {
-      if (text[i] === ' ') {
+      if (text[i] === " ") {
         data.push({
-          text: '',
-          top: data[w].top,
-          left: span.offsetWidth,
-          width: 0,
-          height: span.offsetHeight
+          text:   "",
+          top:    data[w].top,
+          left:   span.offsetWidth,
+          width:  0,
+          height: span.offsetHeight,
         })
         w++
       }
@@ -95,13 +95,13 @@ function clearCanvas(ctx, color, width, height) {
 }
 
 function drawText(ctx, data = []) {
-  data.forEach(word => {
+  data.forEach((word) => {
     const { text, top, left, width, height } = word
     ctx.scale(scaleY, 1)
-    ctx.fillStyle = 'white'
+    ctx.fillStyle = "white"
     roundRect(ctx, left, top, width, height, 5)
     ctx.fill()
-    ctx.fillStyle = 'blue'
+    ctx.fillStyle = "blue"
     ctx.fillText(text, left, baseline + top)
     ctx.scale(1 / scaleY, 1)
   })
@@ -111,11 +111,11 @@ function roundRect(ctx, x, y, w, h, r) {
   const minLength = Math.min(w, h)
   if (minLength < 2 * r) r = minLength / 2
   ctx.beginPath()
-  ctx.moveTo(x+r, y)
-  ctx.arcTo(x+w, y,   x+w, y+h, r)
-  ctx.arcTo(x+w, y+h, x,   y+h, r)
-  ctx.arcTo(x,   y+h, x,   y,   r)
-  ctx.arcTo(x,   y,   x+w, y,   r)
+  ctx.moveTo(x + r, y)
+  ctx.arcTo(x + w, y, x + w, y + h, r)
+  ctx.arcTo(x + w, y + h, x, y + h, r)
+  ctx.arcTo(x, y + h, x, y, r)
+  ctx.arcTo(x, y, x + w, y, r)
   ctx.closePath()
 }
 
@@ -127,8 +127,8 @@ let time = 0
 const timeStartPoint = Math.random() * 100
 const [ width, height ] = [ document.body.clientWidth, document.body.clientHeight ]
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color( 0xcccccc );
+const scene = new THREE.Scene()
+scene.background = new THREE.Color( 0xcccccc )
 const camera = new THREE.PerspectiveCamera( 50, width / height, 0.01, 100 )
 const renderer = new THREE.WebGLRenderer( { antialias: true } )
 renderer.setSize( width, height )
@@ -141,12 +141,12 @@ texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
 const geometry = new THREE.PlaneBufferGeometry( 1, scaleY, 120, 120 * scaleY )
 const material = new THREE.ShaderMaterial({
   uniforms: {
-    time: { value: 0 },
-    image: { value: texture }
+    time:  { value: 0 },
+    image: { value: texture },
   },
   fragmentShader: fragment,
-  vertexShader: vertex,
-  side: THREE.DoubleSide
+  vertexShader:   vertex,
+  side:           THREE.DoubleSide,
 })
 const obj = new THREE.Mesh( geometry, material )
 obj.position.y = 0.2
@@ -170,4 +170,4 @@ document.body.appendChild( canvas )
 document.body.appendChild( renderer.domElement )
 document.body.appendChild( input )
 render()
-handleInput('asdfa sdfa         sdflkjh      sdflkjh lkjh lkajshdf     asdf ')
+handleInput("asdfa sdfa         sdflkjh      sdflkjh lkjh lkajshdf     asdf ")
