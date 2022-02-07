@@ -25,6 +25,7 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {
+    "paper": "^0.12.15",
     "three": "^0.134.0"
   }
 }

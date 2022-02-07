@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import paper from 'paper'
 import fragment from './shaders/fragment.glsl'
 import vertex from './shaders/vertex.glsl'
 import './index.css'
