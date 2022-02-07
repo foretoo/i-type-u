@@ -30,6 +30,7 @@ const texture = new THREE.CanvasTexture(canvas)
 
 const input = document.createElement("input")
 input.type = "text"
+input.setAttribute("spellcheck", "false")
 input.style.fontSize = `${fontHeight}px`
 input.style.width = `${ 50 / Math.sqrt(document.body.clientWidth / document.body.clientHeight) }%`
 const span = document.createElement("span")
