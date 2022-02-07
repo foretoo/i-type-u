@@ -42,6 +42,12 @@ input.oninput = e => {
 }
 
 function handleInput(text) {
+  const {
+    actualBoundingBoxAscent,
+    actualBoundingBoxDescent,
+    actualBoundingBoxLeft,
+    actualBoundingBoxRight
+  } = ctx.measureText(text)
   span.textContent = text
   const data = [{ text: '', top: gap, left: gap, width: 0, height: span.offsetHeight }]
   span.textContent = ''
@@ -123,7 +129,6 @@ const [ width, height ] = [ document.body.clientWidth, document.body.clientHeigh
 const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0xcccccc );
 const camera = new THREE.PerspectiveCamera( 50, width / height, 0.01, 100 )
-camera.position.z = 3;
 const renderer = new THREE.WebGLRenderer( { antialias: true } )
 renderer.setSize( width, height )
 
@@ -143,6 +148,8 @@ const material = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 })
 const obj = new THREE.Mesh( geometry, material )
+obj.position.y = 0.2
+obj.position.z = -2
 scene.add( obj )
 
 function render() {
