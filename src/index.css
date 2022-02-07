@@ -1,6 +1,8 @@
 * {
   margin: 0;
   padding: 0;
+  border: none;
+  outline: none;
   font-family: serif;
   font-size: 20px;
   color: blue;
@@ -28,8 +30,11 @@ input {
   transform: translate(-50%, -50%);
   border: none;
   border-radius: 0.5rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.8);
   background-color: rgba(255, 255, 255, 0.2);
+}
+input:focus {
+  background-color: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(0.25rem);
   -webkit-backdrop-filter: blur(0.25rem);
 }
