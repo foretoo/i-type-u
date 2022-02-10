@@ -14,6 +14,9 @@ body {
   height: 100%;
   position: fixed;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: #ccc;
 }
 canvas,
@@ -23,18 +26,25 @@ span {
   top: 0;
   left: 0;
 }
+#textureCanvas {
+  position: static;
+  top: auto;
+  left: auto;
+}
 input {
-  padding: 0.25rem 0.5rem;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border: none;
+
+  padding: 0.25rem 0.5rem;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.5rem;
-  color: rgba(255, 255, 255, 0.8);
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><filter id='filter'><feTurbulence type='fractalNoise' baseFrequency='2.222' numOctaves='1' stitchTiles='stitch'/><feColorMatrix type='matrix' values='1 1 1 0 0 1 1 1 0 0 1 1 1 0 0 0 0 0 0.333 0'></feColorMatrix></filter><rect width='100%' height='100%' filter='url(%23filter)'/></svg>");
+  backdrop-filter: blur(0.333rem);
+  -webkit-backdrop-filter: blur(0.333rem);
 }
-input:focus {
-  background-color: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(0.25rem);
-  -webkit-backdrop-filter: blur(0.25rem);
+svg {
+  display: none;
 }
