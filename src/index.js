@@ -1,174 +1,142 @@
-import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import paper from "paper"
-import fragment from "./shaders/fragment.glsl"
-import vertex from "./shaders/vertex.glsl"
+import {
+  setup, view, Point, Size, Color, Segment, Path, PointText, Group,
+} from "paper"
+import { canvas, input } from "./constants"
 import "./index.css"
 
-const scaleY = 1.25
-const gap = 2
+// document.body.appendChild(span)
+document.body.appendChild(input)
+document.body.appendChild(canvas)
+setup(canvas)
 
 
-
-//////// CANVAS ////////
-
-const canvas = document.createElement("canvas")
-canvas.style.visibility = "hidden"
-const ctx = canvas.getContext("2d", { alpha: false })
-const clearColor = "#0000ff"
-canvas.width = 256
-canvas.height = 256
-clearCanvas(ctx, clearColor, canvas.width, canvas.height)
-const fontHeight = 31
-const baseline = 0.8 * fontHeight
-ctx.font = `${fontHeight}px serif`
-const texture = new THREE.CanvasTexture(canvas)
+const radius = 8
+const border = 6
+const space  = "      "
 
 
+view.viewSize = new Size(256, 256)
+const background = new Path.Rectangle(0, 0, view.size.width, view.size.height)
+background.fillColor = "#00f"
 
-//////// INPUT ////////
 
-const input = document.createElement("input")
-input.type = "text"
-input.setAttribute("spellcheck", "false")
-input.style.fontSize = `${fontHeight}px`
-input.style.width = `${ 50 / Math.sqrt(document.body.clientWidth / document.body.clientHeight) }%`
-const span = document.createElement("span")
-span.style.fontSize = `${fontHeight}px`
-span.style.visibility = "hidden"
-span.style.whiteSpace = "pre"
+const rectGroup = new Group()
+rectGroup.style = {
+  fillColor: "white",
+}
+const textGroup = new Group()
+textGroup.style = {
+  fontFamily: "serif",
+  fontSize:   20,
+  leading:    24,
+  fillColor:  "blue",
+}
+
 
 input.oninput = (e) => {
-  clearCanvas(ctx, clearColor, canvas.width, canvas.height)
-  handleInput(e.target.value)
+  handleContent(e.target.value, textGroup, border, space)
+  setLabels(rectGroup, textGroup)
+  view.requestUpdate()
 }
 
-function handleInput(text) {
-  const {
-    actualBoundingBoxAscent,
-    actualBoundingBoxDescent,
-    actualBoundingBoxLeft,
-    actualBoundingBoxRight,
-  } = ctx.measureText(text)
-  span.textContent = text
-  const data = [{ text: "", top: gap, left: gap, width: 0, height: span.offsetHeight }]
-  span.textContent = ""
-  let w = 0
-  for (let i = 0; i < text.length; i++) {
-    span.textContent += text[i]
-    if (span.offsetWidth > canvas.width / scaleY) {
-      span.textContent = data[w].text
-      data[w].width = span.offsetWidth
-      span.textContent = text[i]
-      data.push({
-        text:   text[i] === " " ? "" : text[i],
-        top:    data[w].top + span.offsetHeight * 2 > canvas.height ? gap : data[w].top + span.offsetHeight + gap,
-        left:   text[i] === " " ? span.offsetWidth : gap,
-        width:  text[i] === " " ? 0 : span.offsetWidth,
-        height: span.offsetHeight,
-      })
-      w++
-    }
-    else {
-      if (text[i] === " ") {
-        data.push({
-          text:   "",
-          top:    data[w].top,
-          left:   span.offsetWidth,
-          width:  0,
-          height: span.offsetHeight,
-        })
-        w++
-      }
-      else {
-        data[w].text += text[i]
-        data[w].width = span.offsetWidth - data[w].left
-      }
-    }
-  }
-  drawText(ctx, data)
-  texture.needsUpdate = true
-}
-
-function clearCanvas(ctx, color, width, height) {
-  ctx.fillStyle = color
-  ctx.fillRect(0, 0, width, height)
-}
-
-function drawText(ctx, data = []) {
-  data.forEach((word) => {
-    const { text, top, left, width, height } = word
-    ctx.scale(scaleY, 1)
-    ctx.fillStyle = "white"
-    roundRect(ctx, left, top, width, height, 5)
-    ctx.fill()
-    ctx.fillStyle = "blue"
-    ctx.fillText(text, left, baseline + top)
-    ctx.scale(1 / scaleY, 1)
+const setLabels = (rectGroup, textGroup) => {
+  rectGroup.removeChildren()
+  textGroup.children.filter(t => t.isWord).forEach((word) => {
+    const { x, y, width, height } = word.bounds
+    rectGroup.addChild(new Path.Rectangle({
+      point: [ x, y ],
+      size:  [ width, height ],
+      style: rectGroup.style
+    }))
   })
 }
 
-function roundRect(ctx, x, y, w, h, r) {
-  const minLength = Math.min(w, h)
-  if (minLength < 2 * r) r = minLength / 2
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.arcTo(x + w, y, x + w, y + h, r)
-  ctx.arcTo(x + w, y + h, x, y + h, r)
-  ctx.arcTo(x, y + h, x, y, r)
-  ctx.arcTo(x, y, x + w, y, r)
-  ctx.closePath()
+const handleContent = (text, textGroup, border, space) => {
+  textGroup.removeChildren()
+  let [ onWord, onSpace ] = [ false, false ]
+  text.split("").forEach(char => {
+    if (char !== " ") {
+      if (!onWord) {
+        [ onWord, onSpace ] = [ true, false ]
+        initTextPoint(char, textGroup, border, space)
+      }
+      else textGroup.lastChild.content += char
+    }
+    else {
+      if (!onSpace) {
+        [ onWord, onSpace ] = [ false, true ]
+        initTextPoint(space, textGroup, border, space)
+      }
+      else textGroup.lastChild.content += space
+    }
+    if (textGroup.lastChild) {
+      const { x, y, width, height } = textGroup.lastChild.bounds
+      if (x + width + border * 2 > view.bounds.width) {
+        textGroup.lastChild.replaceWith(new PointText({
+          isWord: textGroup.lastChild.isWord,
+          point: [ border, y + height * 2 - 6 ],
+          content: textGroup.lastChild.content,
+          style: textGroup.style
+        }))
+      }
+    }
+  })
+}
+const initTextPoint = (char, textGroup, border, space) => {
+  let x, y, width, height, tx, ty
+  if (textGroup.lastChild) {
+    ({ x, y, width, height } = textGroup.lastChild.bounds)
+    tx = x + width  
+    ty = y + height - 6 // textGroup.style.leading === 20 -> 5, 24 -> 6
+  }
+  else {
+    tx = border
+    ty = border + 18 // textGroup.style.leading === 20 -> 15, 24 -> 18
+  }
+  textGroup.addChild(new PointText({
+    isWord: char !== space,
+    point: [ tx, ty ],
+    content: char,
+    style: textGroup.style,
+  }))
 }
 
 
 
-//////// THREE ////////
+const setRect = (rect, text, radius) => {
+  // rect.remove()
+  // rect.set(Path.Rectangle({
+  //   parent: rectGroup,
+  //   point: [ text.x, text.y ],
+  //   size:  [ text.width, text.height ],
+  //   radius,
+  //   style: rectGroup.style,
+  // }))
+  const { x, y, width: w, height: h } = text
+  let r = radius
+  if (w < r * 2) r = w / 2
+  const k = 0.55228475 * r
 
-let time = 0
-const timeStartPoint = Math.random() * 100
-const [ width, height ] = [ document.body.clientWidth, document.body.clientHeight ]
-
-const scene = new THREE.Scene()
-scene.background = new THREE.Color( 0xcccccc )
-const camera = new THREE.PerspectiveCamera( 50, width / height, 0.01, 100 )
-const renderer = new THREE.WebGLRenderer( { antialias: true } )
-renderer.setSize( width, height )
-
-const controls = new OrbitControls( camera, renderer.domElement )
-controls.update()
-
-texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
-
-const geometry = new THREE.PlaneBufferGeometry( 1, scaleY, 120, 120 * scaleY )
-const material = new THREE.ShaderMaterial({
-  uniforms: {
-    time:  { value: 0 },
-    image: { value: texture },
-  },
-  fragmentShader: fragment,
-  vertexShader:   vertex,
-  side:           THREE.DoubleSide,
-})
-const obj = new THREE.Mesh( geometry, material )
-obj.position.y = 0.2
-obj.position.z = -2
-scene.add( obj )
-
-function render() {
-  time = performance.now() / 1000 + timeStartPoint
-  obj.rotation.x = (Math.sin(time) - 11) / 13
-  material.uniforms.time.value = time
-  controls.update()
-  renderer.render( scene, camera )
-  // input.style.filter = document.activeElement === input ? `blur(${Math.random()*1.618+2}px)` : `blur(2px)`
-  requestAnimationFrame( render )
+  rect.segments = rect.segments.map((_, i) => {
+    if      (i === 0) return setSeg(x + r,     y + h,     "out", "x", -k)
+    else if (i === 1) return setSeg(x,         y + h - r, "in",  "y",  k)
+    else if (i === 2) return setSeg(x,         y + r,     "out", "y", -k)
+    else if (i === 3) return setSeg(x + r,     y,         "in",  "x", -k)
+    else if (i === 4) return setSeg(x + w - r, y,         "out", "x",  k)
+    else if (i === 5) return setSeg(x + w,     y + r,     "in",  "y", -k)
+    else if (i === 6) return setSeg(x + w,     y + h - r, "out", "y",  k)
+    else if (i === 7) return setSeg(x + w - r, y + h,     "in",  "x",  k)
+  })
 }
 
-
-
-document.body.appendChild( span )
-document.body.appendChild( canvas )
-document.body.appendChild( renderer.domElement )
-document.body.appendChild( input )
-render()
-handleInput("asdfa sdfa         sdflkjh      sdflkjh lkjh lkajshdf     asdf ")
+const setSeg = (x, y, dir, axis, k) => (
+  new Segment({
+    point:    [ x, y ],
+    handleIn: dir === "in" ?
+        axis === "x" ? [ k, 0 ] : [ 0, k ]
+      : null,
+    handleOut: dir === "out" ?
+        axis === "x" ? [ k, 0 ] : [ 0, k ]
+      : null,
+  })
+)
