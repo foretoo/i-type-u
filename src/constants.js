@@ -1,11 +1,16 @@
-export const Y_SCALE = 1.25
+const Y_SCALE = 1.25
 
-export const canvas = document.createElement("canvas")
-canvas.id = "textureCanvas"
+const INVERT  = true
+const radius  = 6
+const border  = 6
+const padding = { h: 6, v: 0 }
+const space   = "      "
 
-export const ctx = canvas.getContext("2d", { alpha: false })
-
-export const input = document.createElement("input")
-input.type = "text"
-input.setAttribute("spellcheck", "false")
-input.style.width = `${ 50 / Math.sqrt(document.body.clientWidth / document.body.clientHeight) }%`
+export {
+  Y_SCALE,
+  INVERT,
+  radius,
+  border,
+  padding,
+  space,
+}

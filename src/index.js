@@ -1,149 +1,16 @@
-import {
-  setup, view, project, Point, Size, Color, Segment, Path, PointText, Group,
-} from "paper"
-import { canvas, input } from "./constants"
+import { updateTexture } from "./paper-script"
+import { texture } from "./three-script"
 import "./index.css"
 
+
+
+const input = document.createElement("input")
+input.type = "text"
+input.setAttribute("spellcheck", "false")
+input.style.width = `${ 50 / Math.sqrt(document.body.clientWidth / document.body.clientHeight) }%`
 document.body.appendChild(input)
-document.body.appendChild(canvas)
-setup(canvas)
-
-const flag    = true
-const radius  = 6
-const border  = 6
-const padding = { h: 6, v: 0 }
-const space   = "      "
-
-view.viewSize = new Size(256, 256)
-const background = new Path.Rectangle({
-  point: [ 0, 0 ],
-  size:  [ view.size.width, view.size.height ],
-  fillColor: "#00f",
-})
-const rectGroup = new Group()
-rectGroup.style = {
-  fillColor: "white",
-}
-const textGroup = new Group()
-textGroup.style = {
-  fontFamily: "serif",
-  fontSize:   20,
-  leading:    24,
-  fillColor:  flag ? "white" : "blue",
-}
 
 input.oninput = (e) => {
-  handleContent(e.target.value, textGroup, border, padding, space, flag)
-  setLabels(rectGroup, textGroup, padding, flag)
-  view.requestUpdate()
-}
-
-
-
-const setLabels = (rectGroup, textGroup, padding, flag) => {
-  rectGroup.removeChildren()
-  const words = textGroup.children.filter((t) => flag ? !t.isWord : t.isWord)
-  const temp  = new Group({ insert: false })
-  const _padding = flag ? { h: -padding.h, v: -padding.v } : padding
-
-  rectGroup.addChild(words.reduce((union, word, i) => {
-    const { x, y, width, height } = word.bounds
-    temp.addChild(new Path.Rectangle({
-      point: [ x - _padding.h, y - _padding.v ],
-      size:  [ width + _padding.h * 2, height + _padding.v * 2 ],
-      style: rectGroup.style,
-    }))
-    if (!i) return temp.lastChild
-    return temp.lastChild.unite(union)
-  }, null))
-
-  temp.removeChildren()
-  rectGroup.lastChild && roundRectPath(rectGroup.lastChild, radius)
-}
-
-function roundRectPath(path, radius) {
-  if (path.className === "CompoundPath") {
-    path.children.forEach((child) => roundRectPath(child, radius))
-    return
-  }
-
-  const segments = path.segments.slice(0)
-  path.segments = []
-
-  for (let i = 0, l = segments.length; i < l; i++) {
-    const curPoint = segments[i].point
-    const nextPoint = segments[i + 1 == l ? 0     : i + 1].point
-    const prevPoint = segments[i - 1 < 0  ? l - 1 : i - 1].point
-    const nextDelta = curPoint.subtract(nextPoint)
-    const prevDelta = curPoint.subtract(prevPoint)
-
-    if (nextDelta.length < radius * 2) nextDelta.length /= 2
-    else nextDelta.length = radius
-    if (prevDelta.length < radius * 2) prevDelta.length /= 2
-    else prevDelta.length = radius
-
-    path.add({
-      point:     curPoint.subtract(prevDelta),
-      handleOut: prevDelta.multiply(0.5522),
-    })
-    path.add({
-      point:    curPoint.subtract(nextDelta),
-      handleIn: nextDelta.multiply(0.5522),
-    })
-  }
-  path.closed = true
-}
-
-
-
-const handleContent = (text, textGroup, border, padding, space, flag) => {
-  textGroup.removeChildren()
-  let [ onWord, onSpace ] = [ false, false ]
-  const _padding = flag ? { h: 0, v: 0 } : padding
-  text.split("").forEach((char) => {
-
-    if (char !== " ")
-      if (!onWord) {
-        [ onWord, onSpace ] = [ true, false ]
-        initTextPoint(char, textGroup, border, _padding, space)
-      }
-      else textGroup.lastChild.content += char
-    else
-    if (!onSpace) {
-      [ onWord, onSpace ] = [ false, true ]
-      initTextPoint(space, textGroup, border, _padding, space)
-    }
-    else textGroup.lastChild.content += space
-
-    if (textGroup.lastChild) {
-      const { x, y, width, height } = textGroup.lastChild.bounds
-      if (x + width + _padding.h > view.bounds.width - border) {
-        textGroup.lastChild.replaceWith(new PointText({
-          isWord:  textGroup.lastChild.isWord,
-          point:   [ border + _padding.h, y + height * 2 - 6 ],
-          content: textGroup.lastChild.content,
-          style:   textGroup.style,
-        }))
-      }
-    }
-  })
-}
-
-const initTextPoint = (char, textGroup, border, padding, space) => {
-  let x, y, width, height, tx, ty
-  if (textGroup.lastChild) {
-    ({ x, y, width, height } = textGroup.lastChild.bounds)
-    tx = x + width
-    ty = y + height - 6 // textGroup.style.leading === 20 -> 5, 24 -> 6
-  }
-  else {
-    tx = border + padding.h
-    ty = border + padding.v + 18 // textGroup.style.leading === 20 -> 15, 24 -> 18
-  }
-  textGroup.addChild(new PointText({
-    isWord:  char !== space,
-    point:   [ tx, ty ],
-    content: char,
-    style:   textGroup.style,
-  }))
+  updateTexture(e.target.value)
+  texture.needsUpdate = true
 }
