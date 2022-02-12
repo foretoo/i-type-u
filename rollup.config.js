@@ -24,8 +24,6 @@ export default {
   plugins: [
     replace({ 'process.env.NODE_ENV': JSON.stringify('development') }),
     resolve({
-      jsnext: true,
-      main: true,
       browser: true,
     }),
     commonjs({
