@@ -1,5 +1,6 @@
 - first texture-cover on plain
 - decide what text should appear on input in input element and canvas
 - background (maybe sky gradient or its image)
-- le avtovidelenie oshiboque
 - move from span.offsetWidth to ctx.measureText(text) to get { width, ...actualBoundingBox }
+- if (word width > plain width) move last letter on new line
+- empty spaces on line endings
