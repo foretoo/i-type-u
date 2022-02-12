@@ -34,13 +34,13 @@ const material = new THREE.ShaderMaterial({
   side:           THREE.DoubleSide,
 })
 const obj = new THREE.Mesh( geometry, material )
-obj.position.y = 0.2
+obj.position.y = 0.1
 obj.position.z = -2
 scene.add( obj )
 
 function render() {
   time = performance.now() / 1000 + timeStartPoint
-  obj.rotation.x = (Math.sin(time) - 7) / 13
+  obj.rotation.x = (Math.sin(time) - 9) / 13
   material.uniforms.time.value = time
   controls.update()
   renderer.render( scene, camera )
