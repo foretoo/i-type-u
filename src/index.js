@@ -1,25 +1,25 @@
 import {
-  setup, view, Point, Size, Color, Segment, Path, PointText, Group,
+  setup, view, project, Point, Size, Color, Segment, Path, PointText, Group,
 } from "paper"
 import { canvas, input } from "./constants"
 import "./index.css"
 
-// document.body.appendChild(span)
 document.body.appendChild(input)
 document.body.appendChild(canvas)
 setup(canvas)
 
-
-const radius = 8
-const border = 6
-const space  = "      "
-
+const flag    = true
+const radius  = 6
+const border  = 6
+const padding = { h: 6, v: 0 }
+const space   = "      "
 
 view.viewSize = new Size(256, 256)
-const background = new Path.Rectangle(0, 0, view.size.width, view.size.height)
-background.fillColor = "#00f"
-
-
+const background = new Path.Rectangle({
+  point: [ 0, 0 ],
+  size:  [ view.size.width, view.size.height ],
+  fillColor: "#00f",
+})
 const rectGroup = new Group()
 rectGroup.style = {
   fillColor: "white",
@@ -29,114 +29,121 @@ textGroup.style = {
   fontFamily: "serif",
   fontSize:   20,
   leading:    24,
-  fillColor:  "blue",
+  fillColor:  flag ? "white" : "blue",
 }
 
-
 input.oninput = (e) => {
-  handleContent(e.target.value, textGroup, border, space)
-  setLabels(rectGroup, textGroup)
+  handleContent(e.target.value, textGroup, border, padding, space, flag)
+  setLabels(rectGroup, textGroup, padding, flag)
   view.requestUpdate()
 }
 
-const setLabels = (rectGroup, textGroup) => {
+
+
+const setLabels = (rectGroup, textGroup, padding, flag) => {
   rectGroup.removeChildren()
-  textGroup.children.filter(t => t.isWord).forEach((word) => {
+  const words = textGroup.children.filter((t) => flag ? !t.isWord : t.isWord)
+  const temp  = new Group({ insert: false })
+  const _padding = flag ? { h: -padding.h, v: -padding.v } : padding
+
+  rectGroup.addChild(words.reduce((union, word, i) => {
     const { x, y, width, height } = word.bounds
-    rectGroup.addChild(new Path.Rectangle({
-      point: [ x, y ],
-      size:  [ width, height ],
-      style: rectGroup.style
+    temp.addChild(new Path.Rectangle({
+      point: [ x - _padding.h, y - _padding.v ],
+      size:  [ width + _padding.h * 2, height + _padding.v * 2 ],
+      style: rectGroup.style,
     }))
-  })
+    if (!i) return temp.lastChild
+    return temp.lastChild.unite(union)
+  }, null))
+
+  temp.removeChildren()
+  rectGroup.lastChild && roundRectPath(rectGroup.lastChild, radius)
 }
 
-const handleContent = (text, textGroup, border, space) => {
+function roundRectPath(path, radius) {
+  if (path.className === "CompoundPath") {
+    path.children.forEach((child) => roundRectPath(child, radius))
+    return
+  }
+
+  const segments = path.segments.slice(0)
+  path.segments = []
+
+  for (let i = 0, l = segments.length; i < l; i++) {
+    const curPoint = segments[i].point
+    const nextPoint = segments[i + 1 == l ? 0     : i + 1].point
+    const prevPoint = segments[i - 1 < 0  ? l - 1 : i - 1].point
+    const nextDelta = curPoint.subtract(nextPoint)
+    const prevDelta = curPoint.subtract(prevPoint)
+
+    if (nextDelta.length < radius * 2) nextDelta.length /= 2
+    else nextDelta.length = radius
+    if (prevDelta.length < radius * 2) prevDelta.length /= 2
+    else prevDelta.length = radius
+
+    path.add({
+      point:     curPoint.subtract(prevDelta),
+      handleOut: prevDelta.multiply(0.5522),
+    })
+    path.add({
+      point:    curPoint.subtract(nextDelta),
+      handleIn: nextDelta.multiply(0.5522),
+    })
+  }
+  path.closed = true
+}
+
+
+
+const handleContent = (text, textGroup, border, padding, space, flag) => {
   textGroup.removeChildren()
   let [ onWord, onSpace ] = [ false, false ]
-  text.split("").forEach(char => {
-    if (char !== " ") {
+  const _padding = flag ? { h: 0, v: 0 } : padding
+  text.split("").forEach((char) => {
+
+    if (char !== " ")
       if (!onWord) {
         [ onWord, onSpace ] = [ true, false ]
-        initTextPoint(char, textGroup, border, space)
+        initTextPoint(char, textGroup, border, _padding, space)
       }
       else textGroup.lastChild.content += char
+    else
+    if (!onSpace) {
+      [ onWord, onSpace ] = [ false, true ]
+      initTextPoint(space, textGroup, border, _padding, space)
     }
-    else {
-      if (!onSpace) {
-        [ onWord, onSpace ] = [ false, true ]
-        initTextPoint(space, textGroup, border, space)
-      }
-      else textGroup.lastChild.content += space
-    }
+    else textGroup.lastChild.content += space
+
     if (textGroup.lastChild) {
       const { x, y, width, height } = textGroup.lastChild.bounds
-      if (x + width + border * 2 > view.bounds.width) {
+      if (x + width + _padding.h > view.bounds.width - border) {
         textGroup.lastChild.replaceWith(new PointText({
-          isWord: textGroup.lastChild.isWord,
-          point: [ border, y + height * 2 - 6 ],
+          isWord:  textGroup.lastChild.isWord,
+          point:   [ border + _padding.h, y + height * 2 - 6 ],
           content: textGroup.lastChild.content,
-          style: textGroup.style
+          style:   textGroup.style,
         }))
       }
     }
   })
 }
-const initTextPoint = (char, textGroup, border, space) => {
+
+const initTextPoint = (char, textGroup, border, padding, space) => {
   let x, y, width, height, tx, ty
   if (textGroup.lastChild) {
     ({ x, y, width, height } = textGroup.lastChild.bounds)
-    tx = x + width  
+    tx = x + width
     ty = y + height - 6 // textGroup.style.leading === 20 -> 5, 24 -> 6
   }
   else {
-    tx = border
-    ty = border + 18 // textGroup.style.leading === 20 -> 15, 24 -> 18
+    tx = border + padding.h
+    ty = border + padding.v + 18 // textGroup.style.leading === 20 -> 15, 24 -> 18
   }
   textGroup.addChild(new PointText({
-    isWord: char !== space,
-    point: [ tx, ty ],
+    isWord:  char !== space,
+    point:   [ tx, ty ],
     content: char,
-    style: textGroup.style,
+    style:   textGroup.style,
   }))
 }
-
-
-
-const setRect = (rect, text, radius) => {
-  // rect.remove()
-  // rect.set(Path.Rectangle({
-  //   parent: rectGroup,
-  //   point: [ text.x, text.y ],
-  //   size:  [ text.width, text.height ],
-  //   radius,
-  //   style: rectGroup.style,
-  // }))
-  const { x, y, width: w, height: h } = text
-  let r = radius
-  if (w < r * 2) r = w / 2
-  const k = 0.55228475 * r
-
-  rect.segments = rect.segments.map((_, i) => {
-    if      (i === 0) return setSeg(x + r,     y + h,     "out", "x", -k)
-    else if (i === 1) return setSeg(x,         y + h - r, "in",  "y",  k)
-    else if (i === 2) return setSeg(x,         y + r,     "out", "y", -k)
-    else if (i === 3) return setSeg(x + r,     y,         "in",  "x", -k)
-    else if (i === 4) return setSeg(x + w - r, y,         "out", "x",  k)
-    else if (i === 5) return setSeg(x + w,     y + r,     "in",  "y", -k)
-    else if (i === 6) return setSeg(x + w,     y + h - r, "out", "y",  k)
-    else if (i === 7) return setSeg(x + w - r, y + h,     "in",  "x",  k)
-  })
-}
-
-const setSeg = (x, y, dir, axis, k) => (
-  new Segment({
-    point:    [ x, y ],
-    handleIn: dir === "in" ?
-        axis === "x" ? [ k, 0 ] : [ 0, k ]
-      : null,
-    handleOut: dir === "out" ?
-        axis === "x" ? [ k, 0 ] : [ 0, k ]
-      : null,
-  })
-)
