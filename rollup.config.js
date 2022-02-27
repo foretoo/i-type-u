@@ -9,8 +9,9 @@ import { terser } from 'rollup-plugin-terser'
 
 import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
-const myIP = '192.168.1.44' // to see server from other devices get the local IP — on Windows terminal: ipconfig > "IPv4 Address" OR on Mac/Linux terminal: ifconfig > "en0" > "inet"
-const port = '8000'
+const myIP  = '192.168.1.44' // to see server from other devices get the local IP — on Windows terminal: ipconfig > "IPv4 Address" OR on Mac/Linux terminal: ifconfig > "en0" > "inet"
+const katIP = '192.168.0.103'
+const port  = '8000'
 
 const mode = process.env.PROD ? 'production' : 'development'
 
