@@ -1,5 +1,5 @@
 import { setup, view, Size, Path, PointText, Group } from "paper"
-import { Y_SCALE, INVERT, radius, border, padding, space } from "./constants"
+import { Y_SCALE, IPSUM, INVERT, radius, border, padding, space } from "./constants"
 
 const textureCanvas = document.createElement("canvas")
 // textureCanvas.style.zIndex = 1
@@ -11,13 +11,24 @@ const background = new Path.Rectangle({
   size:  [ view.size.width, view.size.height ],
   fillColor: "blue",
 })
+// const bgGroup = new Group()
+// bgGroup.addChild(new Path.Rectangle({
+//   point: [ 0, 0 ],
+//   size:  [ view.size.width, view.size.height / 2 ],
+//   fillColor: "yellow",
+// }))
+// bgGroup.addChild(new Path.Rectangle({
+//   point: [ 0, view.size.height / 2 ],
+//   size:  [ view.size.width, view.size.height ],
+//   fillColor: "blue",
+// }))
 view.update()
 
 
 
 const rectGroup = new Group()
 rectGroup.style = {
-  fillColor: "white",
+  fillColor: "yellow",
 }
 rectGroup.applyMatrix = false
 rectGroup.scale(1, 1 / Y_SCALE)
@@ -27,7 +38,7 @@ textGroup.style = {
   fontFamily: "serif",
   fontSize:   20,
   leading:    24,
-  fillColor:  INVERT ? "white" : "blue",
+  fillColor:  INVERT ? "yellow" : "blue",
 }
 textGroup.applyMatrix = false
 textGroup.scale(1, 1 / Y_SCALE)
@@ -134,7 +145,7 @@ const initTextPoint = (char, textGroup, border, padding, space) => {
   if (textGroup.lastChild) {
     ({ x, y, width, height } = textGroup.lastChild.bounds)
     tx = x + width
-    ty = y + height - 6 // textGroup.style.leading === 20 -> 5, 24 -> 6
+    ty = y + height - 6.1 // textGroup.style.leading === 20 -> 5, 24 -> 6
   }
   else {
     tx = border + padding.h
@@ -149,3 +160,5 @@ const initTextPoint = (char, textGroup, border, padding, space) => {
 }
 
 export { textureCanvas, updateTexture }
+
+updateTexture(IPSUM)
